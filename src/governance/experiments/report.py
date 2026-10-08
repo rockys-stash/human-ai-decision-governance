@@ -143,6 +143,16 @@ def _e2_tables(s: dict[str, Any]) -> list[str]:
                 f"{_ci(m['reviewer_hours_per_1000'], 1)} | {_ci(m['decision_minutes_median'], 1)} | {_ci(m['decision_minutes_p95'], 1)} | "
                 f"{_ci(m.get('high_stake_errors_per_1000'), 2)} |"
             )
+        ai_loss = r["ai_only"]["loss_per_1000"]["mean"]
+        eff = []
+        for g in ("human_only", "blanket_approval", "risk_adaptive"):
+            hours = r[g]["reviewer_hours_per_1000"]["mean"]
+            if ai_loss is not None and hours:
+                eff.append(
+                    f"{REGIME_LABELS[g]} {(ai_loss - r[g]['loss_per_1000']['mean']) / hours:,.1f}"
+                )
+        if eff:
+            out += ["", "Loss avoided per reviewer hour relative to AI only (ratio of seed means; negative = oversight added loss): " + "; ".join(eff) + "."]  # fmt: skip
         out += ["", "Oversight behaviour on cases where a reviewer saw the AI's decision:", "",
                 "| Regime | Override rate (%) | Override precision (%) | Automation bias (%) | Appropriate reliance (%) | Reviewer utilisation (%) |",
                 "|---|---|---|---|---|---|"]  # fmt: skip

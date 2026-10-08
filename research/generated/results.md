@@ -86,6 +86,8 @@ Policy `credit-default` v1.0 (hash `fbf386ab6a15`).
 | AI + blanket approval | 74.0 [72.5, 75.4] | 1947690 [1763846, 2129185] | 100.0 [100.0, 100.0] | 121.4 [119.1, 123.9] | 12.6 [11.2, 14.2] | 26.9 [24.1, 30.0] | 25.25 [21.00, 29.25] |
 | Risk-adaptive oversight | 59.9 [57.1, 62.7] | 1930192 [1785191, 2081290] | 23.1 [21.3, 25.1] | 15.0 [13.6, 16.5] | 0.0 [0.0, 0.0] | 5.1 [4.7, 5.6] | 26.50 [22.00, 30.75] |
 
+Loss avoided per reviewer hour relative to AI only (ratio of seed means; negative = oversight added loss): Human only -201.1; AI + blanket approval -221.9; Risk-adaptive oversight -628.6.
+
 Oversight behaviour on cases where a reviewer saw the AI's decision:
 
 | Regime | Override rate (%) | Override precision (%) | Automation bias (%) | Appropriate reliance (%) | Reviewer utilisation (%) |
@@ -154,6 +156,8 @@ Policy `eligibility-default` v1.0 (hash `477f51ef511d`).
 | AI only | 84.9 [84.7, 85.1] | 165 [164, 166] | 0.0 [0.0, 0.0] | 0.0 [0.0, 0.0] | 0.0 [0.0, 0.0] | 0.0 [0.0, 0.0] | n/a |
 | AI + blanket approval | 82.1 [81.9, 82.2] | 383 [379, 388] | 100.0 [100.0, 100.0] | 114.9 [114.7, 115.2] | 10.7 [10.4, 11.0] | 30.5 [28.9, 32.3] | n/a |
 | Risk-adaptive oversight | 87.3 [87.2, 87.4] | 166 [164, 167] | 21.9 [21.1, 22.6] | 14.0 [13.2, 14.7] | 0.0 [0.0, 0.0] | 4.9 [4.6, 5.1] | n/a |
+
+Loss avoided per reviewer hour relative to AI only (ratio of seed means; negative = oversight added loss): Human only -2.4; AI + blanket approval -1.9; Risk-adaptive oversight -0.0.
 
 Oversight behaviour on cases where a reviewer saw the AI's decision:
 
@@ -226,6 +230,8 @@ Policy `payments-default` v1.0 (hash `0bc9757cbf19`).
 | AI only | 83.6 [83.0, 84.1] | 239973 [233631, 245927] | 0.0 [0.0, 0.0] | 0.0 [0.0, 0.0] | 0.0 [0.0, 0.0] | 0.0 [0.0, 0.0] | 24.15 [23.05, 25.32] |
 | AI + blanket approval | 83.4 [83.0, 83.8] | 164100 [159002, 169781] | 100.0 [100.0, 100.0] | 111.8 [111.3, 112.3] | 9.5 [9.3, 9.8] | 26.2 [24.2, 28.5] | 20.48 [19.35, 21.70] |
 | Risk-adaptive oversight | 85.2 [84.7, 85.6] | 188883 [183726, 193965] | 23.5 [23.1, 23.9] | 13.4 [13.1, 13.7] | 0.0 [0.0, 0.0] | 4.5 [4.4, 4.6] | 18.34 [17.41, 19.38] |
+
+Loss avoided per reviewer hour relative to AI only (ratio of seed means; negative = oversight added loss): Human only 830.6; AI + blanket approval 678.7; Risk-adaptive oversight 3,810.4.
 
 Oversight behaviour on cases where a reviewer saw the AI's decision:
 

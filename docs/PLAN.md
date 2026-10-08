@@ -38,13 +38,12 @@ Baselines: AI-only (no oversight), human-only (no AI), blanket approval (maximal
 ```
 src/governance/
   data/        dataset loaders (German Credit, Adult), synthetic domain generator, splits, preprocessing
-  simulator/   case stream (arrivals, stakes, policy attributes), workflow clock
   agent/       classifier wrapper (fit on train split only)
   confidence/  calibrators (none / Platt / isotonic), calibration metrics (ECE, MCE, Brier, NLL, reliability bins)
   policy/      YAML policy schema, expected-cost risk score, hard rules, router, audit records (policy hash)
-  humans/      simulated reviewer model + capacity/queue simulation
+  humans/      simulated reviewer model + capacity/queue simulation (arrival clock, staffed queue)
   regimes/     the four regimes and ablation routers
-  experiments/ configs, runner, statistics, report generator, CLI
+  experiments/ per-seed stream builder (split, agent, calibration, difficulty), runner, statistics, report generator, CLI
   api/         FastAPI: results (read-only) + live review queue (token-protected writes, SQLite)
 web/           React + TypeScript decision console
 ```
@@ -60,7 +59,7 @@ Python 3.11+ (tested 3.13), NumPy, scikit-learn (models, calibrators), pydantic 
 | Domain | Source | License | Rows | Decision | Stake |
 |---|---|---|---|---|---|
 | Credit approval | UCI Statlog (German Credit) | CC BY 4.0 | 1,000 | approve / decline loan | credit amount (DM) |
-| Eligibility screening | UCI Adult (Census Income) | CC BY 4.0 | 48,842 | eligible / not eligible for an income-tested programme (income ≤ 50K) | configured asymmetric costs; vulnerability flag |
+| Eligibility screening | UCI Adult (Census Income) | CC BY 4.0 | 48,842 | eligible / not eligible for an income-tested programme (income ≤ 50K) | unit stakes with asymmetric costs (false denial 3, false grant 1) |
 | Operations approvals | Synthetic (this repo) | MIT | configurable | approve / reject a payment | amount (log-normal) |
 
 The synthetic domain has a known generative model, so true outcome probabilities are available and calibration can be checked against ground truth, and shift can be injected in controlled amounts. Raw files are committed with SHA-256 pins and attribution (`data/DATASET.md`). Splits per seed: train 60% / calibration 20% / test stream 20%, stratified; preprocessing fitted on train only; leakage checks are unit-tested (disjoint row ids, no test statistics used before evaluation).
@@ -76,10 +75,10 @@ All runs: YAML config in `configs/`, logged seed, outputs in `results/<experimen
 | E1 | RQ1 | Calibrators × domains: ECE, MCE, Brier, NLL, reliability diagrams; synthetic domain also vs. true probabilities | 20 |
 | E2 | RQ2 | Four regimes × three domains, default policy and reviewer model | 20 |
 | E3 | RQ3 | Threshold sweep → workload / loss frontier; random audit, confidence-only, stake-only, uncalibrated routing at matched workload | 20 |
-| E4 | RQ4 | Sensitivity: automation bias, unaided human accuracy, reviewer capacity | 10 per point |
+| E4 | RQ4 | Sensitivity: automation bias in review, hard-case accuracy, review time, reviewer capacity | 10 per point |
 | E5 | RQ1, RQ4 | Synthetic domain with covariate and concept shift in the test stream | 20 |
 
-Error analysis: every incorrect final decision is attributed to one cause — autonomous AI error, automation-bias acceptance (reviewer accepted a wrong AI decision), harmful override (reviewer overturned a correct AI decision), unaided human error, or policy rule forced a path — broken down by tier and domain, plus group-wise error and routing rates on Adult and German Credit.
+Error analysis: every incorrect final decision is attributed to one cause — autonomous AI error, automation-bias acceptance (reviewer accepted a wrong AI decision), harmful override (reviewer overturned a correct AI decision), or unaided human error — broken down by tier and domain, plus group-wise error and routing rates on Adult and German Credit.
 
 ## 7. Metrics
 
@@ -95,3 +94,5 @@ Accuracy; error rate; cost-weighted loss (per 1,000 cases); high-stakes errors; 
 | LLM-based agent | Not needed | The agent is a classifier: governance logic is agent-agnostic and takes any (decision, score) source |
 
 Risk: a simulation can only show consequences of its assumptions. The report separates findings that hold across the sensitivity ranges from those that depend on specific parameter values.
+
+Implementation deviations from this plan are recorded in `docs/DECISIONS.md` (D18).
