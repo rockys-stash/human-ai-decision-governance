@@ -1,0 +1,20 @@
+# Thresholds are expected cost (currency units) of executing the AI decision. Chosen on tuning seeds
+# 100-104 (top ~20% to a human, top ~5% to approval), rounded.
+id: payments-default
+version: "1.0"
+domain: payments
+description: Default payment-approval oversight policy
+thresholds:
+  review: 300
+  approval: 850
+rules:
+  - id: large-payment
+    description: Payments of 20,000 or more always need approval
+    route: approval
+    when:
+      - {field: stake, op: gte, value: 20000}
+  - id: changed-bank-details
+    description: Payments to changed bank details get at least a review
+    route: review
+    when:
+      - {field: "feature:new_bank_details", op: eq, value: 1}

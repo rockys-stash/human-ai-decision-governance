@@ -1,0 +1,16 @@
+# Thresholds are expected cost (cost units; a wrong denial costs 3, a wrong grant 1) of executing the
+# AI decision. Chosen on tuning seeds 100-104 (top ~20% to a human, top ~5% to approval), rounded.
+id: eligibility-default
+version: "1.0"
+domain: eligibility
+description: Default eligibility-screening oversight policy
+thresholds:
+  review: 0.33
+  approval: 0.65
+rules:
+  - id: uncertain-denial
+    description: A denial the model is less than 90% sure of gets at least a review
+    route: review
+    when:
+      - {field: decision, op: eq, value: 0}
+      - {field: confidence, op: lt, value: 0.9}

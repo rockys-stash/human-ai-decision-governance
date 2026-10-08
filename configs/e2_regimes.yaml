@@ -1,0 +1,7 @@
+# E2 — the four oversight regimes on three domains (RQ2). Reviewer parameters are assumptions; see
+# docs/PLAN.md §8 and the sensitivity experiment E4.
+experiment: e2_regimes
+description: Human-only vs AI-only vs blanket approval vs risk-adaptive oversight
+kind: regimes
+base_seed: 20261008
+seeds: 20

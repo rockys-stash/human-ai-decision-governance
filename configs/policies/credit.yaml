@@ -1,0 +1,21 @@
+# Thresholds are expected cost (DM) of executing the AI decision: (1 - confidence) x cost if wrong.
+# Chosen on tuning seeds 100-104 (never used in experiments) to send roughly the top 20% of expected
+# cost to a human and the top 5% to mandatory approval; then rounded and fixed.
+id: credit-default
+version: "1.0"
+domain: credit
+description: Default credit-approval oversight policy
+thresholds:
+  review: 2500
+  approval: 5000
+rules:
+  - id: large-exposure
+    description: Loans of 10,000 DM or more always need approval
+    route: approval
+    when:
+      - {field: stake, op: gte, value: 10000}
+  - id: long-term
+    description: Loans of 48 months or longer get at least a review
+    route: review
+    when:
+      - {field: "feature:duration_months", op: gte, value: 48}

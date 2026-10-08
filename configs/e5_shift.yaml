@@ -1,0 +1,9 @@
+# E5: what happens to calibration and to each regime when the deployed stream drifts away from the
+# training distribution (synthetic payments domain, where the true probability is known)?
+experiment: e5_shift
+description: Covariate and concept shift on the synthetic payments stream
+kind: shift
+base_seed: 20261008
+seeds: 20
+domains: [payments]
+shift_levels: [0.0, 0.5, 1.0]

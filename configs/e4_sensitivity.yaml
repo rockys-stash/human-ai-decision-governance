@@ -1,0 +1,16 @@
+# E4: do the regime conclusions survive changes to the simulated-reviewer assumptions (RQ4)?
+# One axis at a time; every other parameter stays at its default (docs/PLAN.md §8).
+experiment: e4_sensitivity
+description: One-at-a-time sensitivity of regime outcomes to reviewer and staffing assumptions
+kind: sensitivity
+base_seed: 20261008
+seeds: 10
+sweeps:
+  - param: automation_bias_review
+    values: [0.0, 0.25, 0.5, 0.75, 0.9]
+  - param: acc_hard
+    values: [0.55, 0.65, 0.75, 0.85]
+  - param: minutes_review
+    values: [1.0, 2.0, 4.0]
+  - param: reviewers
+    values: [2, 4, 8]

@@ -1,0 +1,9 @@
+# E1: is the agent's decision confidence calibrated, and which post-hoc calibrator helps (RQ1)?
+# Calibrators are fitted on the calibration split only; metrics are on the held-out test stream.
+experiment: e1_calibration
+description: Calibration of decision confidence by model and calibrator on three domains
+kind: calibration
+base_seed: 20261008
+seeds: 20
+models: [gbm, logreg]
+calibrators: [none, platt, isotonic]
