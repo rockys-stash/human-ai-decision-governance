@@ -40,7 +40,7 @@ Checked: module boundaries, typing (`mypy` strict on `src` and `tests`), determi
 |---|---|---|
 | E1 | The store shared one SQLite connection across threads. A read could run inside another thread's open write transaction. | **Fixed:** every statement takes the store's lock (`9fdc7f5`); `test_concurrent_decisions_keep_one_winner_and_a_valid_chain` races 5 deciders per case over 20 cases on 16 threads, with concurrent reads, and checks one winner per case and an intact chain. |
 | E2 | Five experiments in parallel oversubscribed the CPU (load 17) through BLAS and OpenMP threads. | **Fixed:** `scripts/reproduce.sh` exports `OMP_NUM_THREADS=1`. |
-| E3 | Report regeneration must be deterministic for results to be checkable. | **Fixed:** verified byte-identical output from the committed runs; CI now fails if `governance report` changes `research/`. |
+| E3 | Report regeneration must be deterministic for results to be checkable. | **Fixed:** verified byte-identical output from the committed runs; CI now fails if `governance report` changes the generated tables. The first CI run showed the SVG figures differ when the runner lacks the fonts used locally, so figures are regenerated but not compared. |
 | E4 | The regime simulator replays one queue per regime in Python; E4 takes about 16 minutes. | **Accepted:** fast enough for the study; vectorising the queue is not needed for any claim. |
 | E5 | `results/` (about 3.9 MB) is committed. | **Accepted:** the console and report work from a fresh clone, and every number keeps its run directory and commit (D17). |
 

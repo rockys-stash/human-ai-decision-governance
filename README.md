@@ -133,7 +133,7 @@ make test-ui        # 25 browser and accessibility tests (Playwright + Chromium)
 make screenshots    # re-capture docs/screenshots
 ```
 
-CI runs lint, types, the tests, a check that the report regenerates byte-identical from the committed results, the frontend build, and the browser tests.
+CI runs lint, types, the tests, a check that the report tables regenerate byte-identical from the committed results (figures are regenerated but not compared, because their layout depends on installed fonts), the frontend build, and the browser tests.
 
 ## Security
 
