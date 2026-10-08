@@ -183,7 +183,7 @@ def test_reviewer_flow_keyboard_and_audit(browser: Any, base_url: str, approval_
     submit = page.get_by_role("button", name="Override to")
     assert submit.is_disabled()
     # Focus moves to the reason field on the next tick; typing earlier would send shortcuts.
-    page.wait_for_function("document.activeElement?.tagName === 'TEXTAREA'")
+    playwright_api.expect(page.locator("textarea")).to_be_focused()
     page.keyboard.type("Vendor bank details changed the same day")
     assert submit.is_enabled()
     submit.click()
