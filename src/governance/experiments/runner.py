@@ -308,6 +308,10 @@ def run_frontier(
                 stream_out = st.ctx.out_uncal if uncal else st.ctx.out
                 s_cal = routing_scores(base, st.ctx, calib_out, rng)
                 s_stream = routing_scores(base, st.ctx, stream_out, rng)
+                # Break ties at random so a constant score (unit stakes in eligibility) selects the
+                # target share instead of everyone or no one. Jitter is far below any real gap.
+                s_cal = s_cal + rng.uniform(0, 1e-9, len(s_cal))
+                s_stream = s_stream + rng.uniform(0, 1e-9, len(s_stream))
                 for q in cfg.frontier_shares:
                     if q <= 0:
                         human = np.zeros(len(s_stream), dtype=bool)
