@@ -68,7 +68,9 @@ class Store:
     def __init__(self, path: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.path = path
-        self._lock = threading.Lock()
+        # One connection shared by the server's worker threads: every statement, read or write,
+        # runs under this lock so a read never observes another thread's open transaction.
+        self._lock = threading.RLock()
         self._db = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
         self._db.row_factory = sqlite3.Row
         self._db.execute("PRAGMA journal_mode=WAL")
@@ -84,6 +86,10 @@ class Store:
             except BaseException:
                 self._db.execute("ROLLBACK")
                 raise
+
+    def _q(self, sql: str, args: tuple[Any, ...] | list[Any] = ()) -> list[sqlite3.Row]:
+        with self._lock:
+            return self._db.execute(sql, args).fetchall()
 
     def _append(
         self, db: sqlite3.Connection, case_id: str, actor: str, action: str, payload: dict[str, Any]
@@ -102,7 +108,7 @@ class Store:
 
     # --- writes --------------------------------------------------------------------------------
     def is_empty(self) -> bool:
-        return self._db.execute("SELECT COUNT(*) FROM cases").fetchone()[0] == 0
+        return bool(self._q("SELECT COUNT(*) FROM cases")[0][0] == 0)
 
     def add_case(self, case: dict[str, Any]) -> None:
         """Insert a routed case. Autonomous cases are executed immediately and logged as such."""
@@ -181,12 +187,13 @@ class Store:
             sql += " ORDER BY decided_at DESC, seq"
         sql += " LIMIT ?"
         args.append(limit)
-        return [self._public(r) for r in self._db.execute(sql, args).fetchall()]
+        return [self._public(r) for r in self._q(sql, args)]
 
     def case(self, case_id: str) -> dict[str, Any] | None:
-        row = self._db.execute("SELECT * FROM cases WHERE id = ?", (case_id,)).fetchone()
-        if row is None:
+        rows = self._q("SELECT * FROM cases WHERE id = ?", (case_id,))
+        if not rows:
             return None
+        row = rows[0]
         out = self._public(row, detail=True)
         out["audit"] = self.audit(case_id=case_id, limit=100)
         return out
@@ -226,16 +233,13 @@ class Store:
             args.append(before)
         sql += " ORDER BY seq DESC LIMIT ?"
         args.append(limit)
-        return [
-            {**dict(r), "payload": json.loads(r["payload"])}
-            for r in self._db.execute(sql, args).fetchall()
-        ]
+        return [{**dict(r), "payload": json.loads(r["payload"])} for r in self._q(sql, args)]
 
     def verify(self) -> dict[str, Any]:
         """Recompute the hash chain from the first event."""
         prev = GENESIS
         n = 0
-        for r in self._db.execute("SELECT * FROM audit ORDER BY seq"):
+        for r in self._q("SELECT * FROM audit ORDER BY seq"):
             expected = event_hash(
                 prev, r["ts"], r["case_id"], r["actor"], r["action"], r["payload"]
             )
@@ -247,20 +251,18 @@ class Store:
 
     def stats(self) -> dict[str, Any]:
         counts: dict[str, dict[str, int]] = {}
-        for r in self._db.execute(
+        for r in self._q(
             "SELECT domain, status, tier, COUNT(*) AS n FROM cases GROUP BY domain, status, tier"
         ):
             counts.setdefault(r["domain"], {})
             key = f"{r['status']}:{r['tier']}"
             counts[r["domain"]][key] = r["n"]
-        decided = self._db.execute(
+        decided = self._q(
             "SELECT ai_decision, final_decision, truth FROM cases WHERE status = 'decided'"
-        ).fetchall()
+        )
         overrides = [r for r in decided if r["final_decision"] != r["ai_decision"]]
         ai_wrong = [r for r in decided if r["ai_decision"] != r["truth"]]
-        oldest = self._db.execute(
-            "SELECT MIN(created_at) FROM cases WHERE status = 'pending'"
-        ).fetchone()[0]
+        oldest = self._q("SELECT MIN(created_at) FROM cases WHERE status = 'pending'")[0][0]
         return {
             "counts": counts,
             "oldest_pending_at": oldest,

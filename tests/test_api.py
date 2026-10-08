@@ -11,7 +11,7 @@ from fastapi.testclient import TestClient
 from governance.api.app import create_app, parse_reviewer_tokens
 
 ROOT = Path(__file__).resolve().parents[1]
-TOKEN = "alice-secret-token-123"
+TOKEN = "alice-test-token-0123"
 
 
 @pytest.fixture(scope="module")
@@ -174,3 +174,40 @@ def test_read_token_and_token_parsing(tmp_path: Path, monkeypatch: pytest.Monkey
         "0123456789abcdef": "a",
         "fedcba9876543210": "b",
     }
+
+
+def test_concurrent_decisions_keep_one_winner_and_a_valid_chain(tmp_path: Path) -> None:
+    """Many threads race to decide the same cases while others read: each case is decided once
+    and the audit chain stays valid."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    from governance.api.store import Store
+
+    store = Store(tmp_path / "race.db")
+    for j in range(20):
+        store.add_case({
+            "id": f"c{j}", "domain": "payments", "seq": j, "tier": "review", "priority": float(j),
+            "routing": {"positive_action": "approve", "negative_action": "reject", "confidence": 0.7,
+                        "stake": 10.0, "expected_cost": 3.0, "rules_fired": []},
+            "features": {}, "explanation": [], "ai_decision": "approve", "truth": "approve",
+        })  # fmt: skip
+
+    def decide(job: tuple[int, int]) -> bool:
+        case, worker = job
+        try:
+            store.decide(f"c{case}", f"reviewer:w{worker}", "accept", None)
+            return True
+        except ValueError:
+            return False
+
+    def read(_: int) -> int:
+        return len(store.queue(None, None, "pending", 100)) + len(store.audit(limit=50))
+
+    jobs = [(c, w) for c in range(20) for w in range(5)]
+    with ThreadPoolExecutor(max_workers=16) as pool:
+        reads = pool.map(read, range(200))
+        wins = list(pool.map(decide, jobs))
+        list(reads)
+    assert sum(wins) == 20
+    assert store.verify()["valid"] is True
+    assert store.stats()["human_decisions"] == 20
