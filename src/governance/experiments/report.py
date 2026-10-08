@@ -263,7 +263,12 @@ def _setup() -> Any:
     import matplotlib
 
     matplotlib.use("Agg")
+    import logging
+
     import matplotlib.pyplot as plt
+
+    # Geist is the console's font; it is rarely installed system-wide, so fall back quietly.
+    logging.getLogger("matplotlib.font_manager").setLevel(logging.ERROR)
 
     plt.rcParams.update({
         "font.family": ["Geist", "Inter", "DejaVu Sans"], "font.size": 9, "text.color": INK,

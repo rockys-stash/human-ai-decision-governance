@@ -1,0 +1,55 @@
+experiment: e5_shift
+description: Covariate and concept shift on the synthetic payments stream
+kind: shift
+base_seed: 20261008
+seeds: 20
+domains:
+- payments
+model: gbm
+calibrator: isotonic
+models:
+- gbm
+- logreg
+calibrators:
+- none
+- platt
+- isotonic
+reviewer:
+  acc_easy: 0.95
+  acc_hard: 0.65
+  review_accuracy_penalty: 0.05
+  automation_bias_review: 0.5
+  automation_bias_approval: 0.2
+  minutes_unaided: 6.0
+  minutes_review: 2.0
+  minutes_approval: 6.0
+  time_sigma: 0.5
+  difficulty_time_factor: 0.5
+  fatigue_per_busy_hour: 0.01
+  fatigue_cap: 0.05
+  fatigue_reset_idle_minutes: 15.0
+staffing:
+  reviewers: 4
+  arrivals_per_hour: 30.0
+policies:
+  credit: configs/policies/credit.yaml
+  eligibility: configs/policies/eligibility.yaml
+  payments: configs/policies/payments.yaml
+frontier_shares:
+- 0.0
+- 0.05
+- 0.1
+- 0.15
+- 0.2
+- 0.3
+- 0.4
+- 0.5
+- 0.75
+- 1.0
+frontier_mode: review
+matched_share: 0.2
+sweeps: []
+shift_levels:
+- 0.0
+- 0.5
+- 1.0
