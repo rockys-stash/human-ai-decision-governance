@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this framework, please cite it as below."
+title: "Risk-adaptive human oversight for AI decisions: a governance framework and simulation study"
+type: software
+authors:
+  - alias: rockys-stash
+version: 1.0.0
+date-released: 2026-10-08
+license: MIT
+repository-code: "https://github.com/rockys-stash/human-ai-decision-governance"
+keywords:
+  - AI governance
+  - human oversight
+  - calibration
+  - human-AI decision making
+  - audit
+  - selective prediction
