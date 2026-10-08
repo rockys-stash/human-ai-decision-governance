@@ -179,7 +179,7 @@ def _e2_tables(s: dict[str, Any]) -> list[str]:
                     f"| {g} | {lv} | {_ci(v['error_rate'], 1, True)} | {_ci(v['share_human'], 1, True)} |"
                 )
         out += ["", "Paired comparisons (A minus B over seeds; sign-flip test, Holm-adjusted within each metric and domain):", "",
-                "| Metric | A | B | A − B | 95% CI | p (Holm) |", "|---|---|---|---|---|---|"]  # fmt: skip
+                "| Metric | A | B | A - B | 95% CI | p (Holm) |", "|---|---|---|---|---|---|"]  # fmt: skip
         for p in dd["pairwise"]:
             scale, digits = (100, 2) if p["metric"] == "accuracy" else (1, 1)
             unit = " pp" if p["metric"] == "accuracy" else ""
@@ -223,7 +223,7 @@ def _e4_tables(s: dict[str, Any]) -> list[str]:
            "The last columns compare risk-adaptive oversight with the alternatives, paired over seeds (negative = adaptive loses less).", ""]  # fmt: skip
     for param, per_domain in s["axes"].items():
         out += [f"### `{param}`", "",
-                "| Domain | Value | " + " | ".join(REGIME_LABELS[g] for g in REGIMES) + " | Lowest loss | Adaptive − AI only | Adaptive − blanket |",
+                "| Domain | Value | " + " | ".join(REGIME_LABELS[g] for g in REGIMES) + " | Lowest loss | Adaptive - AI only | Adaptive - blanket |",
                 "|---|---|" + "---|" * (len(REGIMES) + 3)]  # fmt: skip
         for domain, rows in per_domain.items():
             for row in rows:
